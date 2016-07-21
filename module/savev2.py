@@ -9,7 +9,7 @@ class Database(object):
     def __init__(self, database_name='results'):
 
         # Backup is a database format, using Sqlite3 management system
-        self.folder_path = "{}/results".format(path.dirname(path.dirname(path.realpath(__file__))))
+        self.folder_path = "../../results"
         self.db_path = "{}/{}.db".format(self.folder_path, database_name)
 
         # Create connexion to the database
@@ -233,7 +233,7 @@ class Cursor(object):
     def __init__(self):
 
         self.position = 0
-        self.folder = "tmp"
+        self.folder = "../../tmp"
         self.input_file = "{}/cursor.txt".format(self.folder)
 
     def retrieve_position(self):
