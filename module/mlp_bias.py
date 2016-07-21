@@ -143,6 +143,8 @@ class MLP:
 
         return (error ** 2).sum()
 
+    # end
+
 
 
 
