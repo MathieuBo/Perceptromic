@@ -53,7 +53,7 @@ class MLP:
         self.layers.append(np.ones(self.shape[0] + 1))
 
         # Hidden layer(s) + output layer
-        # +1 bias for hidden layers
+        # +1 bias for each hidden layers
 
         for i in range(1, n-1):
             self.layers.append(np.ones(self.shape[i] + 1))
