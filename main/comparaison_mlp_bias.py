@@ -209,7 +209,6 @@ class Supervisor:
             output['index_learn_out{}'.format(i)] = 100 * learn_index
             output['index_test_out{}'.format(i)] = 100 * test_index
 
-
             # new MLP with bias on hidden layers
 
             ntwk_bias.create_network(dataset=kwargs['dataset_out{}'.format(i)],
