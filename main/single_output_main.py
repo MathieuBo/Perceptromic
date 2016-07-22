@@ -3,7 +3,7 @@ from itertools import combinations
 from collections import OrderedDict
 from module.network_trainer import NetworkTrainer  # Version 'pure Python"
 # from module.c_network_trainer import NetworkTrainer
-from module.save import BackUp
+from module.save_multiproc import BackUp
 from multiprocessing import Pool
 from time import time
 from os import path, mkdir
@@ -126,10 +126,10 @@ class Format(object):
 
 class Cursor(object):
 
-    def __init__(self):
+    def __init__(self, filename="cursor"):
         self.position = 0
         self.folder = "../../tmp"
-        self.file_name = "{}/cursor_single_output.txt".format(self.folder)
+        self.file_name = "{folder}/{filename}.txt".format(folder=self.folder, filename=filename)
 
     def retrieve_position(self):
 

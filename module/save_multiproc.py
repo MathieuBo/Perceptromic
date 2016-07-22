@@ -9,7 +9,7 @@ class Database(object):
     def __init__(self, database_name='results'):
 
         # Backup is a database format, using Sqlite3 management system
-        self.folder_path = "{}/results".format(path.dirname(path.dirname(path.realpath(__file__))))
+        self.folder_path = "../../results"
         self.db_path = "{}/{}.db".format(self.folder_path, database_name)
         self.connexion = None
         self.cursor = None
