@@ -3,16 +3,16 @@ from itertools import combinations
 from collections import OrderedDict
 from module.network_trainer import NetworkTrainer  # Version 'pure Python"
 # from module.c_network_trainer import NetworkTrainer
-from module.save import BackUp
+from module.save_multiproc import BackUp
 from multiprocessing import Pool
 from time import time
 from os import path, mkdir
 
 
 class DataManager(object):
-    def __init__(self, file_name="bootstrap", explanans_size=52, explanandum_size=3):
+    def __init__(self, file_name="dataset_290416_3output", explanans_size=52, explanandum_size=3):
 
-        self.folder_path = "data"
+        self.folder_path = "../../data"
         self.file_path = "{}/{}.txt".format(self.folder_path, file_name)
         self.explanans_size = explanans_size
         self.explanandum_size = explanandum_size
@@ -128,7 +128,7 @@ class Cursor(object):
 
     def __init__(self):
         self.position = 0
-        self.folder = "tmp"
+        self.folder = "../../tmp"
         self.file_name = "{}/cursor.txt".format(self.folder)
 
     def retrieve_position(self):
@@ -203,17 +203,7 @@ class Supervisor:
 
         n = data_manager.data.shape[0]
 
-        # indexes_list = SamplesCreator.combinations_samples(n=n, split_value=int(0.8*n))
-
-        indexes_list = []
-
-        for i in range(n_network):
-            selec = np.random.choice(1000, 800, replace=False)
-            not_select = np.setdiff1d(np.arange(1000), selec)
-            indexes_list.append({
-                'learning': selec,
-                'testing': not_select
-            })
+        indexes_list = SamplesCreator.combinations_samples(n=n, split_value=int(0.8*n))
 
         np.random.shuffle(indexes_list)
 
@@ -311,11 +301,11 @@ class Supervisor:
         pre_test2_error, pre_test2_output = network_trainer.test_the_network(kwargs['test_dataset'])
         #
         # weights = network_trainer.network.weights[0]
-        # filename = 'weights/weights_init_{}.txt'.format(kwargs['id_network'])
+        # filename = '../../weights/weights_init_{}.txt'.format(kwargs['id_network'])
         # np.savetxt(filename, weights)
         #
         # weights2 = network_trainer.network.weights[1]
-        # filename2 = 'weights/weights_init_2_{}.txt'.format(kwargs['id_network'])
+        # filename2 = '../../weights/weights_init_2_{}.txt'.format(kwargs['id_network'])
         # np.savetxt(filename2, weights2)
 
         network_trainer.teach_the_network(presentation_number=kwargs['presentation_number'],
@@ -327,11 +317,11 @@ class Supervisor:
         test2_error, test_output2 = network_trainer.test_the_network(kwargs['test_dataset'])
 
         # weights = network_trainer.network.weights[0]
-        # filename = 'weights/weights_test_{}.txt'.format(kwargs['id_network'])
+        # filename = '../../weights/weights_test_{}.txt'.format(kwargs['id_network'])
         # np.savetxt(filename, weights)
         #
         # weights2 = network_trainer.network.weights[1]
-        # filename2 = 'weights/weights_test_2_{}.txt'.format(kwargs['id_network'])
+        # filename2 = '../../weights/weights_test_2_{}.txt'.format(kwargs['id_network'])
         # np.savetxt(filename2, weights2)
 
         output = OrderedDict()
@@ -364,7 +354,7 @@ class Supervisor:
 
 def parameter_test():
 
-    supervisor = Supervisor(n_workers=6, output_file='results_bootstrap', back_up_frequency=1)
+    supervisor = Supervisor(n_workers=6, output_file='results_all_output', back_up_frequency=1)
 
     print("\n*************************")
     print('Preparing kwarg list...')
