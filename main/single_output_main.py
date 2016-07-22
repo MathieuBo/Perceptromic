@@ -12,7 +12,7 @@ from os import path, mkdir
 class DataManager(object):
     def __init__(self, file_name="dataset_290416_3output", explanans_size=52, explanandum_size=3):
 
-        self.folder_path = "data"
+        self.folder_path = "../../data"
         self.file_path = "{}/{}.txt".format(self.folder_path, file_name)
         self.explanans_size = explanans_size
         self.explanandum_size = explanandum_size
@@ -128,7 +128,7 @@ class Cursor(object):
 
     def __init__(self):
         self.position = 0
-        self.folder = "tmp"
+        self.folder = "../../tmp"
         self.file_name = "{}/cursor_single_output.txt".format(self.folder)
 
     def retrieve_position(self):
@@ -342,11 +342,11 @@ class Supervisor:
             pre_test2_error, pre_test2_output = network_trainer.test_the_network(test_dataset)
 
             # weights = network_trainer.network.weights[0]
-            # filename = 'weights_single/weights_init_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
+            # filename = '../../weights_single/weights_init_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
             # np.savetxt(filename, weights)
             #
             # weights2 = network_trainer.network.weights[1]
-            # filename2 = 'weights_single/weights_init_2_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
+            # filename2 = '../../weights_single/weights_init_2_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
             # np.savetxt(filename2, weights2)
 
             network_trainer.teach_the_network(presentation_number=kwargs['presentation_number_out{}'.format(i)],
@@ -358,11 +358,11 @@ class Supervisor:
             test2_error, test_output2 = network_trainer.test_the_network(test_dataset)
 
             weights = network_trainer.network.weights[0]
-            filename = 'classif_comb/unusual/weights_test_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
+            filename = '../../classif_comb/unusual/weights_test_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
             np.savetxt(filename, weights)
 
             weights2 = network_trainer.network.weights[1]
-            filename2 = 'classif_comb/unusual/weights_test_2_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
+            filename2 = '../../classif_comb/unusual/weights_test_2_{id}_out{output}.txt'.format(id=kwargs['id_network'], output=i)
             np.savetxt(filename2, weights2)
 
             output['pre_learning_out{}'.format(i)] = np.mean(pre_test_error ** 2)
