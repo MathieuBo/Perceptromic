@@ -21,16 +21,18 @@
 import numpy as np
 
 
-def sigmoid(x):
+def sigmoid(x): #didn't change the name of the function
     ''' Sigmoid like function using tanh '''
 
-    return np.tanh(x)
+    # return np.tanh(x)
+    return x
 
-
-def dsigmoid(x):
-    ''' Derivative of sigmoid above '''
-
-    return 1.0 - x ** 2
+#
+# def dsigmoid(x):
+#     ''' Derivative of sigmoid above '''
+#
+#     # return 1.0 - x ** 2
+#     return x ** 0
 
 
 class MLP:
@@ -55,6 +57,8 @@ class MLP:
         # Hidden layer(s) + output layer
         # +1 bias for each hidden layers
 
+
+        # Also check here
         for i in range(1, n-1):
             self.layers.append(np.ones(self.shape[i] + 1))
 
@@ -115,14 +119,20 @@ class MLP:
 
         error = target - self.layers[-1]
 
-        delta = error * dsigmoid(self.layers[-1])
+        # delta = error * dsigmoid(self.layers[-1])
+
+        # Derivative of linear function ax is a, here 1
+        delta = error * self.layers[-1]
 
         deltas.append(delta)
 
         # Compute error on hidden layers
 
         for i in range(len(self.shape) - 2, 0, -1):
-            delta = np.dot(deltas[0], self.weights[i].T) * dsigmoid(self.layers[i])
+            # delta = np.dot(deltas[0], self.weights[i].T) * dsigmoid(self.layers[i])
+
+            # Derivative of linear function ax is a, here 1
+            delta = np.dot(deltas[0], self.weights[i].T) * self.layers[i]
 
             deltas.insert(0, delta)
 
