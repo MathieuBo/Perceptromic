@@ -5,8 +5,8 @@
 #PBS -N Perceptromic0
 
 #change output file's name
-#PBS -e /home/anioche/basile/.log/Perceptromic0.err
-#PBS -o /home/anioche/basile/.log/Perceptromic0.log
+#PBS -e /home/anioche/mathieu/.log/Perceptromic0.err
+#PBS -o /home/anioche/mathieu/.log/Perceptromic0.log
 
 # Specify the working directory
 #PBS -d /home/anioche/mathieu/perceptron_avakas
