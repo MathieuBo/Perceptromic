@@ -2,7 +2,11 @@
 
 #############################
 # Your job name (displayed by the queue)
-#PBS -N Perceptromic
+#PBS -N Perceptromic0
+
+#change output file's name
+#PBS -e /home/anioche/basile/.log/Perceptromic0.err
+#PBS -o /home/anioche/basile/.log/Perceptromic0.log
 
 # Specify the working directory
 #PBS -d /home/anioche/mathieu/perceptron_avakas
@@ -21,8 +25,6 @@
 
 # fin des directives PBS
 #############################
-
-i = "0"
 
 module purge # modules cleaning
 module add torque
@@ -46,7 +48,7 @@ echo "#############################"
 # What you actually want to launch
 echo "Start the job"
 # launch python script with pickle object for parameters and number of processes
-python launch_multi.py perceptromic_job${i}.p 12 ${i}
+python launch_multi.py perceptromic_job0.p 12 0
 
 # all done
 echo "Job finished"

@@ -11,14 +11,14 @@ def create_files(n_files):
 
         mkdir(directory)
 
-    for i in range(n_files + 1):
+    for i in range(n_files):
 
         f = open(root_file, 'r')
         content = f.read()
         f.close()
 
-        replaced = re.sub('i = "0"', 'i = "{}"'.format(i), content)
-        replaced = re.sub('Perceptromic', 'Perceptromic_{}'.format(i), replaced)
+        replaced = re.sub('perceptromic_job0.p 12 0', 'perceptromic_job{}.p 12 {}'.format(i, i), content)
+        replaced = re.sub('Perceptromic0', 'Perceptromic{}'.format(i), replaced)
 
         f = open("{}{}.sh".format(prefix_output_file, i), 'w')
         f.write(replaced)
@@ -26,4 +26,4 @@ def create_files(n_files):
 
 if __name__ == "__main__":
 
-    create_files(n_files=100)
+    create_files(n_files=101)
