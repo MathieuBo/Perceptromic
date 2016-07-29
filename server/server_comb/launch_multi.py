@@ -1,19 +1,11 @@
-from multiprocessing import Pool
 import argparse
 import pickle
-from main import myobject
-
-
-def launch(parameters):
-
-    # Call the object you want and give him the right parameters
-    myobject.launch(parameters)    # !!!!!!!!!!!!
+from combinations import combination_var
 
 
 def main():
 
     # Get external arguments using argarse module
-
     parser = argparse.ArgumentParser()
 
     # Here we ask for one string argument
@@ -24,19 +16,22 @@ def main():
     parser.add_argument('number_of_processes', type=int,
                         help='A name of authorized processes is required!')
 
+    # Here we ask for one int argument
+    parser.add_argument('id_job', type=int,
+                        help='A name of authorized processes is required!')
+    li
     args = parser.parse_args()
 
     # Get values of arguments
-    name_of_pickle_file = args.parameters_list_name
+    name_of_pickle_file = "kwargs/{}".format(args.parameters_list_name)
     n_processes = args.number_of_processes
+    id_job = args.id_job
 
     # Get parameters that have to be treated by this job
-    parameters_list = pickle.load(open(name=name_of_pickle_file, mode='rb'))
+    parameters_list = pickle.load(open(name_of_pickle_file, 'rb'))
 
     # Launch the process
-    pool = Pool(processes=n_processes)
-    pool.map(launch, parameters_list)
-
+    combination_var(id_job=id_job, n_workers=n_processes, kwargs_list=parameters_list)
 
 if __name__ == '__main__':
 

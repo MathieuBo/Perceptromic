@@ -5,19 +5,19 @@
 #PBS -N Perceptromic
 
 # Specify the working directory
-#PBS -d ../basile/SpatialEconomy/  # !!!!!!!!!!!!
+#PBS -d /home/anioche/mathieu/perceptron_avakas
 
 # walltime (hh:mm::ss)
-#PBS -l walltime=06:00:00
+#PBS -l walltime=04:00:00
 
 # Specify the number of nodes(nodes=) and the number of cores per nodes(ppn=) to be used
 #PBS -l nodes=1:ppn=6
 
 # Specify physical memory: kb for kilobytes, mb for megabytes, gb for gigabytes
-#PBS -l mem=1gb      # !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#PBS -l mem=300mb
 
 #PBS -m abe
-#PBS -M basilegarcia@gmail.com
+#PBS -M mbourdenx@me.com
 
 # fin des directives PBS
 #############################
@@ -46,7 +46,7 @@ echo "#############################"
 # What you actually want to launch
 echo "Start the job"
 # launch python script with pickle object for parameters and number of processes
-python launch_multi.py parameters_for_perceptromic_${i}.p 12
+python launch_multi.py perceptromic_job${i}.p 12 ${i}
 
 # all done
 echo "Job finished"
