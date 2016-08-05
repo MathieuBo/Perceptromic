@@ -7,29 +7,33 @@ if __name__ == "__main__":
 
     db_folder = "../../db"
 
+    # Be sure that the path of the folder containing the databases is correct.
     assert path.exists(db_folder), 'Wrong path to db folder, please correct it.'
+
+    # Get the list of all the databases
     list_db_name = [i[:-3] for i in listdir("../../db") if i[-3:] == ".db"]
     assert len(list_db_name), 'Could not find any db...'
 
+    # Take the first database of the list as an example to create the new database that will contain all the data
     example_db = Database(folder=db_folder, database_name=list_db_name[0])
-
-    assert len(example_db.read("SELECT * FROM data")), "Seems that data table is empty"
-
     columns = example_db.get_columns()
 
+    # Create different folder for the new database
     new_db_folder = "../../merged_db"
     if not path.exists(new_db_folder):
         mkdir(new_db_folder)
 
+    # Create the new database
     new_db_name = "combinations"
-
     new_db = Database(folder=new_db_folder, database_name=new_db_name)
 
+    # Create the table in the new database
     if new_db.has_table("data"):
         new_db.remove_table("data")
 
     new_db.create_table("data", columns=columns)
 
+    # Fill the new database, displaying some nice progression bar
     for db_name in tqdm(list_db_name):
 
         db_to_merge = Database(folder=db_folder, database_name=db_name)
