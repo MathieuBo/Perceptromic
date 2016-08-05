@@ -1,5 +1,4 @@
 from sqlite3 import connect, OperationalError
-import numpy as np
 from os import path
 from collections import OrderedDict
 
