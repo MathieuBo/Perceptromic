@@ -2,4 +2,6 @@
 *.iml
 *.c
 *.so
+*.pyc
 .idea/
+merge_db/__pycache__/
