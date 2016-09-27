@@ -1,11 +1,10 @@
 import numpy as np
 from itertools import combinations
-from tqdm import tqdm
+
 from multiprocessing import Pool, Value
 from module.savev2 import BackUp, Database
-from sqlite3 import connect
+
 from time import time
-import sys
 
 
 class Statistician(object):
@@ -93,6 +92,6 @@ class Statistician(object):
 if __name__ == "__main__":
 
     s = Statistician()
-    s.analyse(input_database="combinations-copie", output_database='analysis_comb_3_test2',
-              n_variable=3, explanans=52,
-              n_worker=8)
+    s.analyse(input_database="combinations_avakas_merged", output_database='analysis_comb_avakas',
+              n_variable=3, explanans=105,
+              n_worker=2)

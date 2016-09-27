@@ -5,13 +5,13 @@ from tqdm import tqdm
 
 if __name__ == "__main__":
 
-    db_folder = "../../db"
+    db_folder = "../../results_avakas_040816/db"
 
     # Be sure that the path of the folder containing the databases is correct.
     assert path.exists(db_folder), 'Wrong path to db folder, please correct it.'
 
     # Get the list of all the databases
-    list_db_name = [i[:-3] for i in listdir("../../db") if i[-3:] == ".db"]
+    list_db_name = [i[:-3] for i in listdir(db_folder) if i[-3:] == ".db"]
     assert len(list_db_name), 'Could not find any db...'
 
     # Take the first database of the list as an example to create the new database that will contain all the data
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     columns = example_db.get_columns()
 
     # Create different folder for the new database
-    new_db_folder = "../../merged_db"
+    new_db_folder = "../../results_avakas_040816/merged_db"
     if not path.exists(new_db_folder):
         mkdir(new_db_folder)
 
