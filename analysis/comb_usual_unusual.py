@@ -4,7 +4,7 @@ from multiprocessing import Pool
 from module.save_multiproc import Database, BackUp
 import pandas
 import matplotlib.pyplot as plt
-from matplotlib import colors
+import time
 
 
 class Statistician(object):
@@ -15,7 +15,8 @@ class Statistician(object):
     def compute(self, v):
         return self.database.read_column(column_name='e_mean', v=v)[0]
 
-    def combinations_of_selected_indexes(self, indexes, size):
+    @staticmethod
+    def combinations_of_selected_indexes(indexes, size):
 
         return [i for i in combinations(indexes, size)]
 
@@ -27,9 +28,9 @@ class Statistician(object):
         result[:] = pool.map(self.compute, comb_var)
 
         return comb_var, result
-        #return np.mean(result), np.std(result)/np.sqrt(len(usual))
 
-    def import_names(self, filename):
+    @staticmethod
+    def import_names(filename):
 
         names = np.loadtxt('../../var_combination/{}.txt'.format(filename), dtype='str')
 
@@ -39,6 +40,7 @@ class Statistician(object):
             name_list.append(i[3:-2])
 
         return name_list
+
 
 class DataClassifier(Statistician):
 
@@ -194,16 +196,24 @@ class DataClassifier(Statistician):
 
 class SimpleAnalyse(Statistician):
 
-    def __init__(self):
+    def __init__(self, n_var, n_workers=6):
 
         Statistician.__init__(self)
 
-    def overall_mean(self, pool, indexes):
+        self.pool = Pool(processes=n_workers)
+
+        self.n_var = n_var
+
+    def overall_mean(self, indexes=None):
+
+        if indexes is None:
+            indexes = np.arange(self.n_var)
+
 
         print('**********************')
         print('Usual var index are : {}'.format(indexes))
 
-        comb_var, results = self.analyse_combinations(pool, indexes)
+        comb_var, results = self.analyse_combinations(self.pool, indexes)
 
         print('Number of combinations used : {}'.format(len(comb_var)))
 
@@ -214,35 +224,53 @@ class SimpleAnalyse(Statistician):
         print('**********************')
 
 
+class ClassificationAnalyst:
+
+    def __init__(self, total_number_var, n_workers=6):
+
+        self.d = DataClassifier()
+        self.pool = Pool(processes=n_workers)
+
+        self.total_list = np.arange(total_number_var)
+
+        self.indexes_unusual = np.asarray(
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 25, 26, 27, 28, 29, 36, 45,
+             46, 47, 49, 50, 52, 53, 54, 57, 58, 59, 60, 61, 66, 77, 81, 82, 83, 85, 87, 88])
+
+        self.indexes_usual = np.setdiff1d(self.total_list, self.indexes_unusual)
+
+        self.indexes_nosyn = np.asarray(
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 24, 25, 26, 27, 28, 29, 69, 70, 71, 72,
+             73, 74, 75, 76, 98, 99, 100, 101, 102, 103, 104])
+
+        self.indexes_syn = np.setdiff1d(self.total_list, self.indexes_nosyn)
+
+    def run_analysis(self):
+
+        print(time.strftime("%d/%m/%Y"))
+        print(time.strftime("%H:%M:%S"))
+
+        self.d.classification(indexes=self.indexes_usual, table_name='usual', pool=self.pool)
+        self.d.get_best_worst(table_name='usual')
+
+        self.d.classification(indexes=self.indexes_unusual, table_name='unusual', pool=self.pool)
+        self.d.get_best_worst(table_name='unusual')
+
+        self.d.classification(indexes=self.indexes_syn, table_name='Syn_related', pool=self.pool)
+        self. d.get_best_worst(table_name='Syn_related')
+
+        self.d.classification(indexes=self.indexes_nosyn, table_name='Not_syn_related', pool=self.pool)
+        self.d.get_best_worst(table_name='Not_syn_related')
+
+
 if __name__ == "__main__":
 
-    import time
-    print(time.strftime("%d/%m/%Y"))
-    print(time.strftime("%H:%M:%S"))
-    pool = Pool(processes=6)
+    # Create list with wanted indexes
+    # s = SimpleAnalyse(n_workers=6, n_var=105)
+    # s.overall_mean()
 
-    total_list = np.arange(105)
+    c = ClassificationAnalyst(total_number_var=105, n_workers=6)
+    c.run_analysis()
 
-    indexes_unusual = np.asarray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 25, 26, 27, 28, 29, 36, 45,
-                                  46, 47, 49, 50, 52, 53, 54, 57, 58, 59, 60, 61, 66, 77, 81, 82, 83, 85, 87, 88])
 
-    indexes_usual = np.setdiff1d(total_list, indexes_unusual)
 
-    indexes_nosyn = np.asarray([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 24, 25, 26, 27, 28, 29, 69, 70, 71, 72,
-                                73, 74, 75, 76, 98, 99, 100, 101, 102, 103, 104])
-
-    indexes_syn = np.setdiff1d(total_list, indexes_nosyn)
-
-    # s = SimpleAnalyse()
-    # s.overall_mean(pool=pool, indexes=indexes_usual)
-
-    d = DataClassifier()
-
-    d.classification(indexes=indexes_usual, table_name='usual', pool=pool)
-    d.get_best_worst(table_name='usual')
-    d.classification(indexes=indexes_unusual, table_name='unusual', pool=pool)
-    d.get_best_worst(table_name='unusual')
-    d.classification(indexes=indexes_syn, table_name='Syn_related', pool=pool)
-    d.get_best_worst(table_name='Syn_related')
-    d.classification(indexes=indexes_nosyn, table_name='Not_syn_related', pool=pool)
-    d.get_best_worst(table_name='Not_syn_related')
