@@ -193,6 +193,36 @@ class Database(object):
 
             return a
 
+    def read_two_columns(self, column_names, table_name='data', **kwargs):
+
+        if kwargs:
+            conditions = ""
+            for i, j in kwargs.items():
+                conditions += "`{}`='{}' AND ".format(i, j)
+            conditions = conditions[:-5]
+
+            columns = ""
+            for i in column_names:
+                columns += "{}, ".format(i)
+            columns = columns[:-2]
+
+            q = "SELECT {} from {} WHERE {}".format(columns, table_name, conditions)
+
+        else:
+            columns = ""
+            for i in column_names:
+                columns += "`{}`, ".format(i)
+            columns = columns[:-2]
+
+            q = "SELECT {} from {}".format(columns, table_name)
+
+        a = self.read(q)
+        if a:
+            col1 = [i[0] for i in a]
+            col2 = [i[1] for i in a]
+
+            return col1, col2
+
 
 class BackUp(object):
 
