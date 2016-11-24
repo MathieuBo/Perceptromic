@@ -19,7 +19,7 @@ def main():
     # Here we ask for one int argument
     parser.add_argument('id_job', type=int,
                         help='A name of authorized processes is required!')
-    li
+
     args = parser.parse_args()
 
     # Get values of arguments

@@ -21,7 +21,7 @@
 #PBS -l mem=300mb
 
 #PBS -m abe
-#PBS -M mbourdenx@me.com
+#PBS -M mbx.server@gmail.com
 
 # fin des directives PBS
 #############################

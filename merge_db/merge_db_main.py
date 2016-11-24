@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 if __name__ == "__main__":
 
-    db_folder = "../../results_avakas_040816/db"
+    db_folder = "../../results_avakas_231116/db"
 
     # Be sure that the path of the folder containing the databases is correct.
     assert path.exists(db_folder), 'Wrong path to db folder, please correct it.'

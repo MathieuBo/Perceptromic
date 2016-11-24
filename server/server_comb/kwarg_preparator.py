@@ -5,19 +5,29 @@ import pickle
 
 
 class DataManager(object):
-    def __init__(self, file_name="dataset_290716", explanans_size=105, explanandum_size=3):
+    def __init__(self, file_name="dataset_020916", explanans_size=107, explanandum_size=3, add_random=False):
 
         self.folder_path = "data"
         self.file_path = "{}/{}.txt".format(self.folder_path, file_name)
         self.explanans_size = explanans_size
         self.explanandum_size = explanandum_size
-        self.data = self.import_txt()
+        self.data = self.import_txt(add_random=add_random)
 
-    def import_txt(self):
+    def import_txt(self, add_random):
 
         print("Import txt file.")
 
         data = np.loadtxt(self.file_path)
+
+        # Add 3 random columns to analyze performance of random data9218056
+        if add_random is True:
+
+            for i in np.arange(3):
+                to_insert = np.random.random(data.shape[0])
+                data = np.insert(data, -3, to_insert, axis=1)
+        else:
+            pass
+
         return data
 
     def format_data(self):
@@ -139,7 +149,7 @@ def job_definition(total_comb):
     return args
 
 
-def prepare_comb_list(explanans_size=105, combination_size=3):
+def prepare_comb_list(explanans_size=110, combination_size=3):
 
     comb_list = [i for i in combinations(np.arange(explanans_size), combination_size)]
 
@@ -150,13 +160,13 @@ def prepare_comb_list(explanans_size=105, combination_size=3):
 
 class Supervisor:
 
-    def __init__(self):
+    def __init__(self, add_random):
 
         self.n_network = 50
 
-        self.combination_list = prepare_comb_list(explanans_size=105, combination_size=3)
+        self.combination_list = prepare_comb_list(explanans_size=107, combination_size=3)
 
-        self.data_manager = DataManager()  # Import txt file
+        self.data_manager = DataManager(add_random=add_random)  # Import txt file
         self.data_manager.format_data()  # Center-reduce input variables and normalize output variables
 
         self.indexes_list = SamplesCreator.combinations_samples(n=self.data_manager.data.shape[0],
@@ -219,7 +229,7 @@ def combination_var():
     print('Preparing kwarg list...')
     print("**************************\n")
 
-    s = Supervisor()
+    s = Supervisor(add_random=False)
 
     print("\n")
 

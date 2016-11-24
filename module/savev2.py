@@ -197,8 +197,6 @@ class Database(object):
         return self.read(query=query)
 
 
-
-
 class BackUp(object):
 
     def __init__(self, database_name='results', table_name='data'):

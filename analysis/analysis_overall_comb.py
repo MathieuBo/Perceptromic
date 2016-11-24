@@ -1,7 +1,5 @@
 import numpy as np
-from multiprocessing import Pool
-from module.save_multiproc import Database, BackUp
-import pandas
+from module.save_multiproc import Database
 import matplotlib.pyplot as plt
 import time
 from collections import OrderedDict
@@ -49,28 +47,32 @@ class DataClassifier(Statistician):
 
         Statistician.__init__(self)
 
-        self.names = self.import_names(filename='names_105var')
+        self.names = self.import_names(filename='names_020916')
 
         self.var_group = OrderedDict()
-        self.var_group['behavior'] = {'index': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 'color': 'dodgerblue'}
+        self.var_group['behavior'] = {'index': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 'color': '#0899CC'}
 
-        self.var_group['dotblot'] = {'index': [16, 17, 18, 19, 20, 21, 22, 23], "color": 'sage'}
+        self.var_group['dotblot'] = {'index': [16, 17, 18, 19, 20, 21, 22, 23], "color": '#F7941D'}
 
-        self.var_group['synchrotron'] = {'index': [24, 25, 26, 27, 28, 29], 'color': 'darkorange'}
+        self.var_group['synchrotron'] = {'index': [24, 25, 26, 27, 28, 29], 'color': '#EF4036'}
 
         self.var_group['histology'] = {'index': [34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
                                                  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
                                                  62, 63, 64, 65, 66, 67, 77, 78, 79, 80, 81, 82, 83, 84,
-                                                 85, 86, 87, 88, 89, 90, 91, 92, 93, 94], 'color': 'steelblue'}
+                                                 85, 86, 87, 88, 89, 90, 91, 92, 93, 94], 'color': '#525A96'}
 
         self.var_group['wb'] = {"index": [14, 15, 68, 69, 70, 71, 72, 73, 74, 75, 76, 95, 96, 97, 98, 98,
-                                          99, 100, 101, 102, 103, 104], 'color': 'teal'}
+                                          99, 100, 101, 102, 103, 104], 'color': "#66BD61"}
 
-        self.var_group['biomarkers'] = {'index': [30, 31, 32, 33], 'color': 'indianred'}
+        self.var_group['biomarkers'] = {'index': [30, 31, 32, 33], 'color': '#C7C7CC'}
 
-        self.var_group['qpcr'] = {'index': [34, 35], 'color': "gray"}
+        self.var_group['qpcr'] = {'index': [34, 35], 'color': "#B9529E"}
 
-        self.total_list = np.arange(105)
+        self.var_group['hplc'] = {'index': [105, 106], 'color': '#3f4a59'}
+
+        self.var_group['random'] = {'index': [107, 108, 109], 'color': '#000000'}
+
+        self.total_list = np.arange(107)
 
         self.indexes_unusual = np.asarray(
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 25, 26, 27, 28, 29, 36, 45,
@@ -80,7 +82,7 @@ class DataClassifier(Statistician):
 
         self.indexes_nosyn = np.asarray(
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 24, 25, 26, 27, 28, 29, 69, 70, 71, 72,
-             73, 74, 75, 76, 98, 99, 100, 101, 102, 103, 104])
+             73, 74, 75, 76, 98, 99, 100, 101, 102, 103, 104, 105, 106])
 
         self.indexes_syn = np.setdiff1d(self.total_list, self.indexes_nosyn)
 
@@ -246,8 +248,38 @@ class Analyst:
         self.d.graph_method(threshold=self.threshold)
 
 
+def overall_perf(database='analysis_comb_avakas'):
+
+    db = Database(database_name=database)
+    perf = db.read_column(column_name='e_mean')
+
+    perf_all = np.mean(perf)
+    print("overall mean perf : {m} +/- {std}".format(m=np.round(perf_all, decimals=4),
+                                                     std=np.round(np.std(perf), decimals=4)))
+
+    perf_top = np.sort(perf)[:len(perf)//100].copy()
+    print("perf of the 1% best : {m} +/- {std}".format(m=np.round(np.mean(perf_top), decimals=4),
+                                                       std=np.round(np.std(perf_top), decimals=4)))
+
+    randomness = db.read_column(column_name='e_mean', v=(107, 108, 109))
+    print("randomness performance is {}".format(float(np.round(randomness, decimals=4))))
+
+    plt.hist(perf, bins=50, normed=1, facecolor="#336699")
+    plt.axvline(x=randomness, color='k', ls='dashed')
+    plt.xlabel('Mean Square Error')
+    plt.ylabel("Frequency")
+    plt.show()
+
+    plt.hist(perf_top, bins=50, normed=1, facecolor="#999999")
+    plt.xlabel("Mean Square Error")
+    plt.ylabel("Frequency")
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
 
-    analyst = Analyst(threshold=.01)
+    # analyst = Analyst(threshold=.01)
+    # analyst.run_analysis()
 
-    analyst.run_analysis()
+    overall_perf()
