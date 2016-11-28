@@ -19,7 +19,7 @@ if __name__ == "__main__":
     columns = example_db.get_columns()
 
     # Create different folder for the new database
-    new_db_folder = "../../results_avakas_040816/merged_db"
+    new_db_folder = "../../results_avakas_231116/merged_db"
     if not path.exists(new_db_folder):
         mkdir(new_db_folder)
 

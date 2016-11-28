@@ -92,6 +92,6 @@ class Statistician(object):
 if __name__ == "__main__":
 
     s = Statistician()
-    s.analyse(input_database="combinations_avakas_merged", output_database='analysis_comb_avakas',
-              n_variable=3, explanans=105,
-              n_worker=2)
+    s.analyse(input_database="combinations_231116", output_database='analysis_comb_avakas_231116',
+              n_variable=3, explanans=110,
+              n_worker=6)

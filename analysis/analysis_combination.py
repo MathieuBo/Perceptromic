@@ -2,7 +2,7 @@ import numpy as np
 from itertools import combinations
 from tqdm import tqdm
 from multiprocessing import Pool
-from module.save import Database, BackUp
+from module.savev2 import Database, BackUp
 from sqlite3 import connect
 
 
@@ -35,7 +35,7 @@ class Statistician(object):
 
     def get_data_from_db(self):
 
-        con = connect("results/combinations-copie.db")
+        con = connect("../../results/{}.db".format(self.database))
         cursor = con.cursor()
         query = "SELECT `post_learning_test`, `index_test`, `selected_var` FROM data "
         raw_data = cursor.execute(query).fetchall()
@@ -49,7 +49,9 @@ class Statistician(object):
 
         selected_var = data_as_array[:, 2]
 
-        return values, selected_var
+        print(selected_var)
+
+        #return values, selected_var
 
     def analyse(self, variable_sets, file_name, n_variable):
 
@@ -66,9 +68,8 @@ class Statistician(object):
         #     sem.append(self.compute_sem(variable_sets[i]))
         #     index.append(self.compute_mean_index(variable_sets[i]))
 
-
-
         results = []
+
         for i, j, k, l in zip(means, variable_sets, sem, index):
 
             dic = dict()
@@ -113,5 +114,6 @@ if __name__ == "__main__":
 
     # Analyse par combinaison
     # analyse_par_combinaison(explanans_size=52, nombre_variable=3, file_name='analysis_comb_3_tet')
-    s = Statistician(database_name="combintations-copie")
+
+    s = Statistician(database_name="combinations_231116")
     s.get_data_from_db()

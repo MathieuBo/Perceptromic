@@ -8,7 +8,7 @@ from collections import OrderedDict
 class Statistician(object):
 
     def __init__(self):
-        self.database = Database('analysis_comb_avakas')
+        self.database = Database('analysis_comb_avakas_231116')
 
     def read_columns(self):
         return self.database.read_two_columns(column_names=['e_mean', 'v'])
@@ -24,7 +24,7 @@ class Statistician(object):
         for i in ordered_mean:
             ordered_var.append(var_names[i])
 
-        select_comb = ordered_var[:int(len(mean_perf)*threshold)]
+        select_comb = ordered_var[:int(len(ordered_mean)*threshold)]
 
         return select_comb
 
@@ -38,6 +38,11 @@ class Statistician(object):
         for i in names:
             name_list.append(i[3:-2])
 
+        name_list = name_list[:-3]
+        name_list.append("random1")
+        name_list.append("random2")
+        name_list.append("random3")
+
         return name_list
 
 
@@ -49,14 +54,14 @@ class DataClassifier(Statistician):
 
         self.names = self.import_names(filename='names_020916')
 
-        self.var_group = OrderedDict()
+        self.var_group = dict()
         self.var_group['behavior'] = {'index': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], 'color': '#0899CC'}
 
         self.var_group['dotblot'] = {'index': [16, 17, 18, 19, 20, 21, 22, 23], "color": '#F7941D'}
 
         self.var_group['synchrotron'] = {'index': [24, 25, 26, 27, 28, 29], 'color': '#EF4036'}
 
-        self.var_group['histology'] = {'index': [34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+        self.var_group['histology'] = {'index': [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
                                                  48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
                                                  62, 63, 64, 65, 66, 67, 77, 78, 79, 80, 81, 82, 83, 84,
                                                  85, 86, 87, 88, 89, 90, 91, 92, 93, 94], 'color': '#525A96'}
@@ -68,11 +73,11 @@ class DataClassifier(Statistician):
 
         self.var_group['qpcr'] = {'index': [34, 35], 'color': "#B9529E"}
 
-        self.var_group['hplc'] = {'index': [105, 106], 'color': '#3f4a59'}
+        self.var_group['hplc'] = {'index': [105, 106], 'color': '#3F4A59'}
 
         self.var_group['random'] = {'index': [107, 108, 109], 'color': '#000000'}
 
-        self.total_list = np.arange(107)
+        self.total_list = np.arange(110)
 
         self.indexes_unusual = np.asarray(
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21, 22, 23, 25, 26, 27, 28, 29, 36, 45,
@@ -118,6 +123,8 @@ class DataClassifier(Statistician):
             techs['wb'] = 0
             techs['biomarkers'] = 0
             techs['qpcr'] = 0
+            techs["hplc"] = 0
+            techs["random"] = 0
 
             for j in best_var:
 
@@ -169,10 +176,9 @@ class DataClassifier(Statistician):
 
         counts_ord = counts.copy()
         y = np.sort(counts_ord)[::-1]
-
         y = y/(np.sum(y)/3)
 
-        x = np.arange(len(select_var))
+
 
         labels = select_var[np.argsort(counts)[::-1]]
 
@@ -182,10 +188,36 @@ class DataClassifier(Statistician):
         for i in labels:
             name_var.append(self.names[i])
 
+        randomness_perf = []
+        for i in labels:
+            if name_var[i][:-1] in 'random':
+                randomness_perf.append(y[i])
+
+        data_for_graph = OrderedDict()
+        for i in np.arange(len(select_var)):
+            data_for_graph['{}'.format(name_var[i])] = {'count': y[i],
+                                                        'color': color[i]}
+
+        data_for_graph.pop('random1')
+        data_for_graph.pop('random2')
+        data_for_graph.pop('random3')
+
+        names_graph = []
+        values = []
+        color_graph = []
+
+        for keys in data_for_graph.keys():
+            names_graph.append(keys)
+            values.append(data_for_graph[keys]['count'])
+            color_graph.append(data_for_graph[keys]['color'])
+
+        x = np.arange(len(values))
+
         # Plot
-        plt.bar(x+.25, y, color=color)
-        plt.xticks(x+.5, name_var, rotation='vertical')
-        plt.xlim((0, 106))
+        plt.bar(x+.3, values, color=color_graph)
+        plt.xticks(x+.5, names_graph, rotation='vertical')
+        plt.axhline(y=np.mean(randomness_perf), color='k', ls='dashed')
+        plt.xlim((0, len(values)+1))
         plt.tight_layout()
         plt.show()
 
@@ -244,11 +276,11 @@ class Analyst:
         print("Analysis of frequence")
         self.d.graph_freq(threshold=self.threshold)
 
-        print("\nAnalysis of methods")
-        self.d.graph_method(threshold=self.threshold)
+        # print("\nAnalysis of methods")
+        # self.d.graph_method(threshold=self.threshold)
 
 
-def overall_perf(database='analysis_comb_avakas'):
+def overall_perf(database='analysis_comb_avakas_231116'):
 
     db = Database(database_name=database)
     perf = db.read_column(column_name='e_mean')
@@ -261,7 +293,7 @@ def overall_perf(database='analysis_comb_avakas'):
     print("perf of the 1% best : {m} +/- {std}".format(m=np.round(np.mean(perf_top), decimals=4),
                                                        std=np.round(np.std(perf_top), decimals=4)))
 
-    randomness = db.read_column(column_name='e_mean', v=(107, 108, 109))
+    randomness = db.read_column(column_name='e_mean', v='(107, 108, 109)')
     print("randomness performance is {}".format(float(np.round(randomness, decimals=4))))
 
     plt.hist(perf, bins=50, normed=1, facecolor="#336699")
@@ -279,7 +311,10 @@ def overall_perf(database='analysis_comb_avakas'):
 
 if __name__ == "__main__":
 
-    # analyst = Analyst(threshold=.01)
-    # analyst.run_analysis()
-
+    # Overall performance
     overall_perf()
+
+    # Frequency analysis
+    analyst = Analyst(threshold=.01)
+    analyst.run_analysis()
+

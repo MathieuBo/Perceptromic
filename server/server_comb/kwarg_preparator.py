@@ -5,7 +5,7 @@ import pickle
 
 
 class DataManager(object):
-    def __init__(self, file_name="dataset_020916", explanans_size=107, explanandum_size=3, add_random=False):
+    def __init__(self, file_name="dataset_020916", explanans_size=110, explanandum_size=3, add_random=True):
 
         self.folder_path = "data"
         self.file_path = "{}/{}.txt".format(self.folder_path, file_name)
@@ -128,6 +128,17 @@ class Format(object):
 
         return formatted_data
 
+    @staticmethod
+    def format_random(data):
+
+        mean, std = np.mean(data), np.std(data)
+        if std != 0:
+            formatted_data = (data - mean) / std
+        else:
+            formatted_data = (data - mean)
+
+        return formatted_data
+
 
 def job_definition(total_comb):
 
@@ -187,21 +198,41 @@ class Supervisor:
         learning_rate = 0.05
         presentation_number = 1000
 
+        total_var = self.data_manager.explanans_size
+
         kwargs_list = []
 
         for selected_variables in self.combination_list[start:end]:
+
+            selected_variables = (83, 107, 108)
+
+            random = False
+            list_randomize = []
+            if total_var-1 in selected_variables or total_var-2 in selected_variables or total_var-3 in selected_variables:
+
+                random = True
+
+                for indice, var in enumerate(selected_variables):
+
+                    if var == total_var-1 or var == total_var-2 or var == total_var-3:
+                        list_randomize.append(indice)
 
             np.random.shuffle(self.indexes_list)
 
             for selected_ind in self.indexes_list[0:n_network]:
 
                 samples_learning = self.data_manager.import_data(explanandum=[0, 1, 2],
-                                                                explanans=selected_variables,
-                                                                individuals=selected_ind['learning'])
+                                                                 explanans=selected_variables,
+                                                                 individuals=selected_ind['learning'])
 
                 samples_testing = self.data_manager.import_data(explanandum=[0, 1, 2],
                                                                 explanans=selected_variables,
                                                                 individuals=selected_ind['testing'])
+
+                if random:
+                    for i in list_randomize:
+                        samples_learning['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5, high=0.5, size=samples_learning.shape[0]))
+                        samples_testing['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5, high=0.5, size=samples_testing.shape[0]))
 
                 kwargs = {"dataset": samples_learning,
                           "test_dataset": samples_testing,
@@ -229,7 +260,7 @@ def combination_var():
     print('Preparing kwarg list...')
     print("**************************\n")
 
-    s = Supervisor(add_random=False)
+    s = Supervisor(add_random=True)
 
     print("\n")
 
