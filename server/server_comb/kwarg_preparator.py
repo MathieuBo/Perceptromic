@@ -5,7 +5,7 @@ import pickle
 
 
 class DataManager(object):
-    def __init__(self, file_name="dataset_020916", explanans_size=110, explanandum_size=3, add_random=True):
+    def __init__(self, file_name="dataset_020916", explanans_size=130, explanandum_size=3, add_random=True):
 
         self.folder_path = "data"
         self.file_path = "{}/{}.txt".format(self.folder_path, file_name)
@@ -22,7 +22,7 @@ class DataManager(object):
         # Add 3 random columns to analyze performance of random data9218056
         if add_random is True:
 
-            for i in np.arange(3):
+            for i in np.arange(23):
                 to_insert = np.random.random(data.shape[0])
                 data = np.insert(data, -3, to_insert, axis=1)
         else:
@@ -142,12 +142,23 @@ class Format(object):
 
 def job_definition(total_comb):
 
-    step = total_comb // 100
+    n_job = 100 * (total_comb // 100000)
+
+    step = total_comb // n_job
+
+    print('\ntotal number of jobs: {}'.format(n_job))
+
+    # We know that 4hours (240 minutes) for 100,000 networks is ok
+    # So we choose the number of jobs according to that
+
+    mean_time = step * 240 / 2000
+
+    print("mean job time should be : {}h{}\n".format(int(mean_time // 60), int(mean_time % 60)))
 
     args = list()
 
-    for i in range(100):
-        if i != 99:
+    for i in range(n_job):
+        if i != n_job-1:
             start = i + i * step
             end = start + step + 1
 
@@ -160,7 +171,7 @@ def job_definition(total_comb):
     return args
 
 
-def prepare_comb_list(explanans_size=110, combination_size=3):
+def prepare_comb_list(explanans_size=130, combination_size=3):
 
     comb_list = [i for i in combinations(np.arange(explanans_size), combination_size)]
 
@@ -171,13 +182,14 @@ def prepare_comb_list(explanans_size=110, combination_size=3):
 
 class Supervisor:
 
-    def __init__(self, add_random):
+    def __init__(self, add_random, explanans_size, combination_size):
 
         self.n_network = 50
 
-        self.combination_list = prepare_comb_list(explanans_size=107, combination_size=3)
+        self.combination_list = prepare_comb_list(explanans_size=explanans_size, combination_size=combination_size)
 
-        self.data_manager = DataManager(add_random=add_random)  # Import txt file
+        # Import txt file
+        self.data_manager = DataManager(add_random=add_random,explanans_size=explanans_size, explanandum_size=3)
         self.data_manager.format_data()  # Center-reduce input variables and normalize output variables
 
         self.indexes_list = SamplesCreator.combinations_samples(n=self.data_manager.data.shape[0],
@@ -198,26 +210,27 @@ class Supervisor:
         learning_rate = 0.05
         presentation_number = 1000
 
-        total_var = self.data_manager.explanans_size
+        # id_random = [107, 108, 109]
 
         kwargs_list = []
 
         for selected_variables in self.combination_list[start:end]:
 
-            selected_variables = (83, 107, 108)
+            # Create random data for each set of ind
 
-            random = False
-            list_randomize = []
-            if total_var-1 in selected_variables or total_var-2 in selected_variables or total_var-3 in selected_variables:
-
-                random = True
-
-                for indice, var in enumerate(selected_variables):
-
-                    if var == total_var-1 or var == total_var-2 or var == total_var-3:
-                        list_randomize.append(indice)
-
-            np.random.shuffle(self.indexes_list)
+            # random = False
+            # list_randomize = []
+            #
+            # if set(selected_variables).intersection(id_random) is not None:
+            #
+            #     random = True
+            #
+            #     for indice, var in enumerate(selected_variables):
+            #
+            #         if var in id_random:
+            #             list_randomize.append(indice)
+            #
+            # np.random.shuffle(self.indexes_list)
 
             for selected_ind in self.indexes_list[0:n_network]:
 
@@ -229,10 +242,12 @@ class Supervisor:
                                                                 explanans=selected_variables,
                                                                 individuals=selected_ind['testing'])
 
-                if random:
-                    for i in list_randomize:
-                        samples_learning['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5, high=0.5, size=samples_learning.shape[0]))
-                        samples_testing['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5, high=0.5, size=samples_testing.shape[0]))
+                # if random:
+                #     for i in list_randomize:
+                #          samples_learning['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5, high=0.5,
+                #                                                                               size=samples_learning.shape[0]))
+                #          samples_testing['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5,
+                #                                                                              high=0.5, size=samples_testing.shape[0]))
 
                 kwargs = {"dataset": samples_learning,
                           "test_dataset": samples_testing,
@@ -260,7 +275,7 @@ def combination_var():
     print('Preparing kwarg list...')
     print("**************************\n")
 
-    s = Supervisor(add_random=True)
+    s = Supervisor(add_random=True, explanans_size=130, combination_size=3)
 
     print("\n")
 
