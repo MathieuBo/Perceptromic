@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 if __name__ == "__main__":
 
-    db_folder = "../../results_avakas_231116/db"
+    db_folder = "../../results_avakas_061216/db"
 
     # Be sure that the path of the folder containing the databases is correct.
     assert path.exists(db_folder), 'Wrong path to db folder, please correct it.'
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     columns = example_db.get_columns()
 
     # Create different folder for the new database
-    new_db_folder = "../../results_avakas_231116/merged_db"
+    new_db_folder = "../../results_avakas_061216/merged_db"
     if not path.exists(new_db_folder):
         mkdir(new_db_folder)
 

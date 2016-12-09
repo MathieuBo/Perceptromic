@@ -19,7 +19,7 @@ class DataManager(object):
 
         data = np.loadtxt(self.file_path)
 
-        # Add 3 random columns to analyze performance of random data9218056
+        # Add X random columns to analyze performance of random data
         if add_random is True:
 
             for i in np.arange(23):
@@ -210,27 +210,9 @@ class Supervisor:
         learning_rate = 0.05
         presentation_number = 1000
 
-        # id_random = [107, 108, 109]
-
         kwargs_list = []
 
         for selected_variables in self.combination_list[start:end]:
-
-            # Create random data for each set of ind
-
-            # random = False
-            # list_randomize = []
-            #
-            # if set(selected_variables).intersection(id_random) is not None:
-            #
-            #     random = True
-            #
-            #     for indice, var in enumerate(selected_variables):
-            #
-            #         if var in id_random:
-            #             list_randomize.append(indice)
-            #
-            # np.random.shuffle(self.indexes_list)
 
             for selected_ind in self.indexes_list[0:n_network]:
 
@@ -241,13 +223,6 @@ class Supervisor:
                 samples_testing = self.data_manager.import_data(explanandum=[0, 1, 2],
                                                                 explanans=selected_variables,
                                                                 individuals=selected_ind['testing'])
-
-                # if random:
-                #     for i in list_randomize:
-                #          samples_learning['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5, high=0.5,
-                #                                                                               size=samples_learning.shape[0]))
-                #          samples_testing['x'][:, i] = Format.format_random(np.random.uniform(low=-0.5,
-                #                                                                              high=0.5, size=samples_testing.shape[0]))
 
                 kwargs = {"dataset": samples_learning,
                           "test_dataset": samples_testing,

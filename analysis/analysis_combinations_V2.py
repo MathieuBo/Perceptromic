@@ -10,14 +10,17 @@ from time import time
 class Statistician(object):
 
     counter = Value('i', 0)
-    max_counter = 22100
-    frequency = 300
 
-    def __init__(self):
+    def __init__(self, explanans_size, n_variable):
 
         self.values = None
         self.selected_var = None
 
+        self.comb_list = self.get_variable_set(explanans_size=explanans_size, n_variable=n_variable)
+
+        self.max_counter = len(self.comb_list)
+
+        self.frequency = 300
 
     @staticmethod
     def convert_seconds_to_h_m_s(seconds):
@@ -67,7 +70,7 @@ class Statistician(object):
 
         return dic
 
-    def analyse(self, output_database, input_database, explanans, n_variable, n_worker):
+    def analyse(self, output_database, input_database, n_worker):
 
         beginning_time = time()
         print("BEGIN IMPORT")
@@ -80,7 +83,7 @@ class Statistician(object):
 
         pool = Pool(processes=n_worker)
 
-        results = pool.map(self.compute_data, self.get_variable_set(explanans_size=explanans, n_variable=n_variable))
+        results = pool.map(self.compute_data, self.comb_list)
 
         end_time = time()
         print("time : {}".format(self.convert_seconds_to_h_m_s(end_time - intermediate_time)))
@@ -91,7 +94,7 @@ class Statistician(object):
 
 if __name__ == "__main__":
 
-    s = Statistician()
-    s.analyse(input_database="combinations_231116", output_database='analysis_comb_avakas_231116',
-              n_variable=3, explanans=110,
+    s = Statistician(explanans_size=130, n_variable=3)
+
+    s.analyse(input_database="combinations_061216", output_database='analysis_comb_avakas_061216',
               n_worker=6)

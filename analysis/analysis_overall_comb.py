@@ -7,8 +7,8 @@ from collections import OrderedDict
 
 class Statistician(object):
 
-    def __init__(self):
-        self.database = Database('analysis_comb_avakas_231116')
+    def __init__(self, db_name):
+        self.database = Database(db_name)
 
     def read_columns(self):
         return self.database.read_two_columns(column_names=['e_mean', 'v'])
@@ -48,9 +48,9 @@ class Statistician(object):
 
 class DataClassifier(Statistician):
 
-    def __init__(self):
+    def __init__(self, db_name):
 
-        Statistician.__init__(self)
+        Statistician.__init__(self, db_name=db_name)
 
         self.names = self.import_names(filename='names_020916')
 
@@ -178,8 +178,6 @@ class DataClassifier(Statistician):
         y = np.sort(counts_ord)[::-1]
         y = y/(np.sum(y)/3)
 
-
-
         labels = select_var[np.argsort(counts)[::-1]]
 
         color = self.get_color(labels)
@@ -263,7 +261,7 @@ class Analyst:
 
         self.threshold = threshold
 
-        self.d = DataClassifier()
+        self.d = DataClassifier(db_name='analysis_comb_avakas_231116')
 
     def run_analysis(self):
 
