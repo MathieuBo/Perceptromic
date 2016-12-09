@@ -1,5 +1,6 @@
 import numpy as np
 from itertools import combinations
+from os import path
 
 from multiprocessing import Pool, Value
 from module.savev2 import BackUp, Database
@@ -73,6 +74,9 @@ class Statistician(object):
 
     def analyse(self, output_database, input_database, n_worker):
 
+        dic_folder = "../../results/dic/"
+        assert path.exists(dic_folder)
+
         beginning_time = time()
         print("BEGIN IMPORT")
         self.values, self.selected_var = self.get_data_from_db(database_name=input_database)
@@ -97,8 +101,8 @@ class Statistician(object):
             dic['sem'] = mean_post_learning_test / np.sqrt(50)
             dic['index_mean'] = np.mean(val[:, 1])
 
-            with open("dic_{}.p".format(str_variable_set), mode='wb') as file:
-                file.dump(dic)
+            with open("{}/dic_{}.p".format(dic_folder, str_variable_set), mode='wb') as file:
+                pickle.dump(file=file, obj=dic)
 
         end_time = time()
         print("time : {}".format(self.convert_seconds_to_h_m_s(end_time - intermediate_time)))
