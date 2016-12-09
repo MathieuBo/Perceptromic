@@ -1,10 +1,10 @@
 import numpy as np
 from itertools import combinations
-
-from os import path
+from os import path, mkdir
 
 from multiprocessing import Pool, Value
 from module.savev2 import BackUp, Database
+import pickle
 
 from time import time
 
@@ -72,29 +72,59 @@ class Statistician(object):
 
         return dic
 
+    def db_to_pic(self, input_database):
+
+        pic_folder = '../../results/pick'
+
+        if not path.exists(pic_folder):
+
+            print("Creating directory for pickles")
+            mkdir(pic_folder)
+
+            beginning_time = time()
+            print("BEGIN IMPORT")
+            self.values, self.selected_var = self.get_data_from_db(database_name=input_database)
+
+            np.save(file="{}/values.p".format(pic_folder), arr= self.values)
+            np.save(file="{}/sel_var.p".format(pic_folder), arr=self.selected_var)
+
+            intermediate_time = time()
+
+            print("IMPORT FINISHED")
+            print("time : {}".format(self.convert_seconds_to_h_m_s(intermediate_time-beginning_time)))
+
+            print("Pickles saved")
+
     def analyse(self, output_database, input_database, n_worker):
 
-        pic_folder = '../../results/pic'
-        assert path.exists(pic_folder)
+        self.db_to_pic(input_database=input_database)
 
-        beginning_time = time()
-        print("BEGIN IMPORT")
-        self.values, self.selected_var = self.get_data_from_db(database_name=input_database)
+        dic_folder = "../../results/dic/"
+        assert path.exists(dic_folder)
 
-        intermediate_time = time()
+        # for variable_set in self.comb_list:
+        #
+        #     dic = dict()
+        #
+        #     str_variable_set = '{}'.format(variable_set)
+        #     boolean = self.selected_var == str_variable_set
+        #
+        #     val = self.values[boolean]
+        #     mean_post_learning_test = np.mean(val[:, 0])
+        #
+        #     dic["v"] = variable_set
+        #     dic["e_mean"] = mean_post_learning_test
+        #     dic['sem'] = mean_post_learning_test / np.sqrt(50)
+        #     dic['index_mean'] = np.mean(val[:, 1])
+        #
+        #     with open("{}/dic_{}.p".format(dic_folder, str_variable_set), mode='wb') as file:
+        #         pickle.dump(file=file, obj=dic)
+        #
+        # end_time = time()
+        # print("time : {}".format(self.convert_seconds_to_h_m_s(end_time - intermediate_time)))
 
-        print("IMPORT FINISHED")
-        print("time : {}".format(self.convert_seconds_to_h_m_s(intermediate_time-beginning_time)))
-
-        pool = Pool(processes=n_worker)
-
-        results = pool.map(self.compute_data, self.comb_list)
-
-        end_time = time()
-        print("time : {}".format(self.convert_seconds_to_h_m_s(end_time - intermediate_time)))
-
-        b = BackUp(output_database, "data")
-        b.save(results)
+        #b = BackUp(output_database, "data")
+        #b.save(results)
 
 
 if __name__ == "__main__":
@@ -102,4 +132,4 @@ if __name__ == "__main__":
     s = Statistician(explanans_size=130, n_variable=3)
 
     s.analyse(input_database="combinations_061216", output_database='analysis_comb_avakas_061216',
-              n_worker=1)
+              n_worker=6)
