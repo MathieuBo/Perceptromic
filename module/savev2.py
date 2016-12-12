@@ -6,10 +6,10 @@ import numpy as np
 
 class Database(object):
 
-    def __init__(self, database_name='results'):
+    def __init__(self, database_name='results', database_folder="../../results"):
 
         # Backup is a database format, using Sqlite3 management system
-        self.folder_path = "../../results"
+        self.folder_path = database_folder
         self.db_path = "{}/{}.db".format(self.folder_path, database_name)
 
         # Create connexion to the database
@@ -199,9 +199,9 @@ class Database(object):
 
 class BackUp(object):
 
-    def __init__(self, database_name='results', table_name='data'):
+    def __init__(self, database_name='results', table_name='data', database_folder="../../results"):
 
-        self.db = Database(database_name=database_name)
+        self.db = Database(database_name=database_name, database_folder=database_folder)
         self.table = table_name
 
     def save(self, data):

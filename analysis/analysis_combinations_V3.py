@@ -77,6 +77,7 @@ class Statistician(object):
         dic_folder = "../../results/dic/"
         assert path.exists(dic_folder)
 
+        if not path.exists(dic_folder):
         beginning_time = time()
         print("BEGIN IMPORT")
         self.values, self.selected_var = self.get_data_from_db(database_name=input_database)
@@ -85,6 +86,8 @@ class Statistician(object):
 
         print("IMPORT FINISHED")
         print("time : {}".format(self.convert_seconds_to_h_m_s(intermediate_time-beginning_time)))
+
+
 
         for variable_set in self.comb_list:
 
