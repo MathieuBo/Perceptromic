@@ -28,7 +28,8 @@ def main():
     id_job = args.id_job
 
     # Get parameters that have to be treated by this job
-    parameters_list = pickle.load(open(name_of_pickle_file, 'rb'))
+    with open(name_of_pickle_file, 'rb') as file:
+        parameters_list = pickle.load(file)
 
     # Launch the process
     combination_var(id_job=id_job, n_workers=n_processes, kwargs_list=parameters_list)
