@@ -1,172 +1,165 @@
 import numpy as np
-from itertools import combinations, repeat
-
+from itertools import combinations
 from os import path, mkdir
-
-from multiprocessing import Pool, Value, Array, Manager, cpu_count
-from module.savev2 import BackUp, Database
-
+from multiprocessing import Pool, Value, Array, cpu_count
 from time import time
 import ctypes
+from module.savev2 import BackUp, Database
 
 
-sv = None
-v = None
+# Global variables that will be used for parallel computation
+
+
+shared_selected_variables = None
+shared_values = None
 counter = None
-max_counter = None
+n = None
+shared_beginning_time = None
 
 
-class Statistician(object):
+# ----- Get data ------ #
 
-    counter = Value('i', 0)
 
-    def __init__(self, explanans_size, n_variable):
+def get_data_from_db(database_name, database_folder):
 
-        self.comb_list = self.get_variable_set(explanans_size=explanans_size, n_variable=n_variable)
+    db = Database(database_name=database_name, database_folder=database_folder)
+    raw_data = db.read_columns(column_list=["post_learning_test", "index_test", "selected_var"])
 
-        self.selected_var = None
-        self.values = None
+    n_rows = len(raw_data)
+    n_columns = len(raw_data[0])
+    data_as_array = np.asarray(raw_data)
+    data_as_array.reshape((n_rows, n_columns))
 
-    @staticmethod
-    def get_variable_set(explanans_size, n_variable):
-        return [i for i in combinations(np.arange(explanans_size), n_variable)]
+    values = np.zeros((n_rows, n_columns - 1))
+    values[:] = data_as_array[:, :2]
+    selected_var = data_as_array[:, 2]
 
-    @staticmethod
-    def get_data_from_db(database_name, database_folder):
+    return values, selected_var
 
-        db = Database(database_name=database_name, database_folder=database_folder)
-        raw_data = db.read_columns(column_list=["post_learning_test", "index_test", "selected_var"])
 
-        n_rows = len(raw_data)
-        n_columns = len(raw_data[0])
-        data_as_array = np.asarray(raw_data)
-        data_as_array.reshape((n_rows, n_columns))
+def get_values_and_selected_variables(input_database, database_folder, temporary_files_folder):
 
-        values = np.zeros((n_rows, n_columns - 1))
-        values[:] = data_as_array[:, :2]
-        selected_var = data_as_array[:, 2]
+    values_file = "{}/{}_values.npy".format(temporary_files_folder, input_database)
+    selected_var_file = "{}/{}_selected_variables.npy".format(temporary_files_folder, input_database)
 
-        return values, selected_var
+    if not path.exists(values_file) or not path.exists(selected_var_file):
 
-    # def compute_data(self, variable_set):
-    #
-    #     dic = dict()
-    #
-    #     boolean = self.selected_var == '{}'.format(variable_set)
-    #     val = self.values[boolean]
-    #     mean_post_learning_test = np.mean(val[:, 0])
-    #
-    #     dic["v"] = variable_set
-    #     dic["e_mean"] = mean_post_learning_test
-    #     dic['sem'] = mean_post_learning_test / np.sqrt(50)
-    #     dic['index_mean'] = np.mean(val[:, 1])
-    #
-    #     self.counter.value += 1
-    #
-    #     if self.counter.value % self.frequency == 0:
-    #
-    #         print("Progress: {}%".format(np.round(self.counter.value / self.max_counter * 100, decimals=2)))
-    #
-    #     return dic
+        if not path.exists(temporary_files_folder):
+            mkdir(temporary_files_folder)
 
-    def get_values_and_selected_variables(self, input_database, database_folder, temporary_files_folder):
-
-        values_file = "{}/{}_values.npy".format(temporary_files_folder, input_database)
-        selected_var_file = "{}/{}_selected_variables.npy".format(temporary_files_folder, input_database)
-
-        if not path.exists(values_file) or not path.exists(selected_var_file):
-
-            if not path.exists(temporary_files_folder):
-                mkdir(temporary_files_folder)
-
-            beginning_time = time()
-            print("BEGIN IMPORT")
-            values, selected_var = self.get_data_from_db(
-                database_name=input_database,
-                database_folder=database_folder)
-
-            np.save(file=values_file, arr=values)
-            np.save(file=selected_var_file, arr=selected_var)
-
-            end_time = time()
-
-            print("IMPORT FINISHED")
-            print("Time: {}".format(convert_seconds_to_h_m_s(end_time-beginning_time)))
-
-        else:
-            
-            print("LOAD FROM TEMPORARY FILES")
-            values = np.load(file=values_file)
-            selected_var = np.load(file=sel_var_file)
-        
-        return values, selected_var
-
-    def analyse(self, output_database, input_database, temporary_files_folder, database_folder, n_worker):
-
-        values, selected_var = self.get_values_and_selected_variables(
-            temporary_files_folder=temporary_files_folder, input_database=input_database,
+        beginning_time = time()
+        print("Begin importation of data.")
+        values, selected_var = get_data_from_db(
+            database_name=input_database,
             database_folder=database_folder)
 
-        # m = Manager()
-        self.selected_var = Array(ctypes.c_char_p, selected_var.size)
-        # self.selected_var[:] = [str(i).encode() for i in selected_var]
-        # self.selected_var.value = selected_var
-
-        self.values = shared_zeros(values.shape[0], values.shape[1])
-        self.values[:] = values
-
-        # self.init_process(self.values, self.selected_var)
-
-        global v
-        v = self.values
-        global sv
-        sv = selected_var
-
-        global counter
-        counter = Value("i", 0)
-
-        global max_counter
-        max_counter = len(self.comb_list)
-
-        # self.selected_var = Array()
-
-        print("Begin computation")
-        beginning_time = time()
-
-        pool = Pool(processes=n_worker)
-        results = pool.map(func=self.compute, iterable=self.comb_list)
+        np.save(file=values_file, arr=values)
+        np.save(file=selected_var_file, arr=selected_var)
 
         end_time = time()
 
-        print("Time needed: {}.".format(convert_seconds_to_h_m_s(end_time-beginning_time)))
+        print("Importation of data done.")
+        print("Time needed for the importation of data: {}".format(convert_seconds_to_h_m_s(end_time-beginning_time)))
 
-        print("Saving")
+    else:
 
-        b = BackUp(output_database, "data", database_folder=database_folder)
-        b.save(results)
+        print("Load data from npy files.")
+        values = np.load(file=values_file)
+        selected_var = np.load(file=selected_var_file)
 
-    @staticmethod
-    def compute(variable_set):
+    return values, selected_var
 
-        dic = dict()
 
-        #  sel_var = np.asarray([i.decode() for i in sv[:]])
+# ----- Analysis function that organize stuff to do ------ #
 
-        boolean = sv[:] == '{}'.format(variable_set)
-        val = v[boolean]
-        mean_post_learning_test = np.mean(val[:, 0])
 
-        dic["v"] = variable_set
-        dic["e_mean"] = mean_post_learning_test
-        dic['sem'] = mean_post_learning_test / np.sqrt(50)
-        dic['index_mean'] = np.mean(val[:, 1])
+def analyse(explanans_size, n_variable, output_database, input_database, temporary_files_folder,
+            database_folder, n_worker):
 
+    comb_list = [i for i in combinations(np.arange(explanans_size), n_variable)]
+
+    values, selected_var = get_values_and_selected_variables(
+        temporary_files_folder=temporary_files_folder, input_database=input_database,
+        database_folder=database_folder)
+
+    # ---- #
+    # Set global variables that will serve for each worker.
+    global shared_values
+    global shared_selected_variables
+    global counter
+    global n
+    global shared_beginning_time
+
+    shared_values = shared_zeros(values.shape[0], values.shape[1])
+    shared_values[:] = values
+
+    shared_selected_variables = selected_var
+
+    counter = Value("i", 0)
+
+    n = len(comb_list)
+
+    # ---- #
+    # Launch a pool of worker for doing the computations.
+
+    print("Begin computations.")
+
+    shared_beginning_time = time()
+
+    pool = Pool(processes=n_worker)
+    results = pool.map(func=compute, iterable=comb_list)
+
+    end_time = time()
+
+    print()
+    print("Time needed for computations: {}.".format(convert_seconds_to_h_m_s(end_time-shared_beginning_time)))
+
+    # ---- #
+    # Save computations in a database
+    b = BackUp(output_database, "data", database_folder=database_folder)
+    b.save(results)
+
+
+# ----- Computation function that will be used in parallel ------ #
+
+
+def compute(variable_set):
+
+    # ---- #
+    # Do the analysis
+
+    dic = dict()
+
+    boolean = shared_selected_variables[:] == '{}'.format(variable_set)
+    val = shared_values[boolean]
+    mean_post_learning_test = np.mean(val[:, 0])
+
+    dic["shared_values"] = variable_set
+    dic["e_mean"] = mean_post_learning_test
+    dic['sem'] = mean_post_learning_test / np.sqrt(50)
+    dic['index_mean'] = np.mean(val[:, 1])
+
+    # ---- #
+    # Do some print for having an idea how the things go
+
+    with counter.get_lock():
         counter.value += 1
-        txt = "Progress: {}%".format(np.round(counter.value / max_counter * 100, decimals=2))
-        print("\r{}".format(txt), end=" ", flush=True)
+        k = counter.value
 
-        return dic
+    actual_time = time()
 
+    progress = np.round(k/n * 100, decimals=2)
+    remaining_time = (actual_time - shared_beginning_time) * (1/k) * (n-k)
+    txt = "Progress: {}% [estimated remaining_time: {}.]".format(
+        progress, convert_seconds_to_h_m_s(remaining_time))
+
+    # Sophisticated print for having all in one single line
+    print("\r{}".format(txt), end=" ", flush=True)
+
+    return dic
+
+
+# ----- Useful functions ------ #
 
 def convert_seconds_to_h_m_s(seconds):
 
@@ -176,6 +169,7 @@ def convert_seconds_to_h_m_s(seconds):
 
 
 def shared_zeros(n1, n2):
+
     # create a  2D numpy array which can be then changed in different threads
     shared_array_base = Array(ctypes.c_double, n1 * n2)
     shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
@@ -183,18 +177,24 @@ def shared_zeros(n1, n2):
     return shared_array
 
 
+# ----- Main ------ #
+
+
 def main():
+
+    explanans_size = 120
+    n_variable = 3
 
     temporary_files_folder = path.expanduser("~/Desktop")
     database_folder = path.expanduser("~/Desktop")
-    input_db = "combinations_061216"
+    input_db = "combinations_0"
     output_db = 'analysis_comb_avakas_061216'
 
-    s = Statistician(explanans_size=130, n_variable=3)
-
-    s.analyse(input_database=input_db, output_database=output_db,
-              database_folder=database_folder,
-              n_worker=cpu_count(), temporary_files_folder=temporary_files_folder)
+    analyse(
+        explanans_size=explanans_size, n_variable=n_variable,
+        input_database=input_db, output_database=output_db,
+        database_folder=database_folder,
+        n_worker=cpu_count(), temporary_files_folder=temporary_files_folder)
 
 
 if __name__ == "__main__":
