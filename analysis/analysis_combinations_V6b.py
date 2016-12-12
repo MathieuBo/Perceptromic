@@ -132,7 +132,7 @@ def compute(variable_set):
     val = shared_values[boolean]
     mean_post_learning_test = np.mean(val[:, 0])
 
-    dic["shared_values"] = variable_set
+    dic["v"] = variable_set
     dic["e_mean"] = mean_post_learning_test
     dic['sem'] = mean_post_learning_test / np.sqrt(50)
     dic['index_mean'] = np.mean(val[:, 1])
