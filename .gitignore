@@ -5,3 +5,7 @@
 *.pyc
 .idea/
 merge_db/__pycache__/
+
+analysis/\.DS_Store
+
+\.DS_Store
