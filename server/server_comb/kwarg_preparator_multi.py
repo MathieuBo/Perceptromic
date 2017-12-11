@@ -2,13 +2,15 @@ import numpy as np
 from itertools import combinations
 from tqdm import tqdm
 import pickle
+from collections import OrderedDict
+from multiprocessing import Pool
 
 
 class DataManager(object):
-    def __init__(self, explanans_size, random_size, file_name="dataset_020916",  explanandum_size=3, add_random=True):
+    def __init__(self, explanans_size, random_size, file_name="dataset_041317",  explanandum_size=3, add_random=True):
 
         self.folder_path = "data"
-        self.file_path = "{}/{}.txt".format(self.folder_path, file_name)
+        self.file_path = "../../{}/{}.txt".format(self.folder_path, file_name)
 
         self.explanans_size = explanans_size
         self.explanandum_size = explanandum_size
@@ -175,11 +177,9 @@ def job_definition(total_comb):
 
     filename = "job_list"
 
-    path_to_file = "kwargs/{}.p".format(filename)
+    path_to_file = "../../kwargs/{}.p".format(filename)
 
     pickle.dump(args, open(path_to_file, "wb"))
-
-    return args
 
 
 def prepare_comb_list(explanans_size=130, combination_size=3):
@@ -219,10 +219,14 @@ class Supervisor:
         h, m = divmod(m, 60)
         return "%d:%02d:%02d" % (h, m, s)
 
-    def prepare_kwargs_list(self, id_job, start, end):
+    def prepare_kwargs_list(self, param):
 
         n_network = 50
         hidden_layer = 3
+
+        id_job = param['id_job']
+        start = param['start']
+        end = param['end']
 
         learning_rate = 0.05
         presentation_number = 1000
@@ -256,12 +260,12 @@ class Supervisor:
 
         filename = "perceptromic_job{}".format(id_job)
 
-        path_to_file = "kwargs/{}.p".format(filename)
+        path_to_file = "../../kwargs/{}.p".format(filename)
 
         pickle.dump(kwargs_list, open(path_to_file, "wb"))
 
 
-def combination_var():
+def combination_var(start_job=None, end_job=None, list_job_generated=False):
 
     print("\n*************************")
     print('Preparing kwarg list...')
@@ -273,11 +277,29 @@ def combination_var():
 
     print("\n")
 
-    list_jobs = job_definition(total_comb=len(s.combination_list))
+    if list_job_generated is not True:
 
-    for id_job, job in tqdm(enumerate(list_jobs)):
+        job_definition(total_comb=len(s.combination_list))
 
-        s.prepare_kwargs_list(id_job=id_job, start=job[0], end=job[1])
+    with open('../../kwargs/list_job', 'rb') as file:
+        all_jobs = pickle.load(file)
+
+    if start_job is None and end_job is None:
+        list_jobs = all_jobs
+    else:
+        list_jobs = all_jobs[start_job, end_job]
+
+    list_dict = []
+
+    for id_job, job in enumerate(list_jobs):
+
+        dict_jobs = {"id_job": id_job, "start": job[0], "end": job[1]}
+        list_dict.append(dict_jobs)
+
+    print("\nList jobs ready - preparing kwargs \n")
+
+    pool = Pool(processes=6)
+    pool.map(s.prepare_kwargs_list, list_dict)
 
     print("\n**************************")
     print('Kwarg list ready.')

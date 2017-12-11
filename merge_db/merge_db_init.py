@@ -1,5 +1,5 @@
 from os import path, listdir, mkdir
-from merge_db.save_merge import Database
+from save_merge import Database
 from tqdm import tqdm
 
 
@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     working_directory = "/Users/Mathieu/Desktop/"
 
-    db_folder = "{}/db2".format(working_directory)
+    db_folder = "{}/results".format(working_directory)
 
     # Be sure that the path of the folder containing the databases is correct.
     assert path.exists(db_folder), 'Wrong path to db folder, please correct it.'
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     new_db.create_table("data", columns=columns)
 
     # Fill the new database, displaying some nice progression bar
-    for db_name in tqdm(list_db_name):
+    for db_name in tqdm(list_db_name[:200]):
 
         db_to_merge = Database(folder=db_folder, database_name=db_name)
         data = db_to_merge.read_n_rows(columns=columns)

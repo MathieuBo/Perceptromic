@@ -23,10 +23,11 @@ class Statistician(object):
         self.n_network = n_network
 
         # --- Data containers
-        self.post_learning_test = None  # Will be a numpy array with float
-        self.selected_variables = None  # Will be a numpy array with strings
-        self.formatted_data = dict()
+        self.nb_combinations = len([i for i in combinations(np.arange(explanans_size*2), 3)])
         self.backup = []
+
+        # --- Data identifiers
+        self.idx = 0
 
     # ----- Get data ------ #
 
@@ -47,8 +48,10 @@ class Statistician(object):
         content = np.asarray(cursor.fetchall())
         connection.close()
 
-        self.post_learning_test = np.array(content[:, 0], dtype=float)
-        self.selected_variables = content[:, 1]
+        # Organize data and store them in a list
+        db_init = self.reformat_data(data=content)
+        self.prepare_backup(data=db_init)
+
         print('First DB read - Array created')
 
         # Append data for the other database by concatenating arrays
@@ -62,33 +65,8 @@ class Statistician(object):
             content = np.asarray(cursor.fetchall())
             connection.close()
 
-            self.post_learning_test = np.append(self.post_learning_test, np.array(content[:, 0], dtype=float),
-                                                     axis=0)
-
-            self.selected_variables = np.append(self.selected_variables, content[:, 1],
-                                                     axis=0)
-
-    def get_post_learning_test_and_selected_variables(self, force):
-
-        values_file = "{}/{}_post_learning_test.npy".format(self.temporary_files_folder, self.input_database)
-        selected_var_file = "{}/{}_selected_variables.npy".format(self.temporary_files_folder, self.input_database)
-
-        if not path.exists(values_file) or not path.exists(selected_var_file) or force:
-
-            if not path.exists(self.temporary_files_folder):
-                mkdir(self.temporary_files_folder)
-
-            print("Import data from database.")
-            self.get_data_from_db()
-
-            np.save(file=values_file, arr=self.post_learning_test)
-            np.save(file=selected_var_file, arr=self.selected_variables)
-
-        else:
-
-            print("Load data from npy files.")
-            self.post_learning_test = np.load(file=values_file)
-            self.selected_variables = np.load(file=selected_var_file)
+            db_follow = self.reformat_data(data=content)
+            self.prepare_backup(data=db_follow)
 
     # ----- Analysis properly speaking ------ #
 
@@ -97,51 +75,39 @@ class Statistician(object):
         assert not path.exists("{}/{}.db".format(self.database_folder, self.output_database)), \
             "Output database already exists. Please erase it or give it a new name."
 
-        # Can turn force argument to True if you want reload data from dab
-        self.get_post_learning_test_and_selected_variables(force=True)
-
-        print()
-        print("Reformat data.")
-        self.reformat_data()
-
-        print()
-        print("Prepare backup.")
-        self.prepare_backup()
+        print("Reformat data and prepare backup")
+        self.get_data_from_db()
 
         print()
         print("Do backup.")
         self.do_backup()
 
-    def reformat_data(self):
+    @staticmethod
+    def reformat_data(data):
 
-        comb_list = [str(i) for i in combinations(np.arange(self.explanans_size), self.n_variable)]
+        organized_data = dict()
+        comb_list = np.unique(data[:, 1])
 
         for i in comb_list:
-            self.formatted_data[i] = []
+            organized_data[i] = []
 
-        for sel_var, post_learning_res in zip(self.selected_variables, self.post_learning_test):
-            self.formatted_data[sel_var].append(post_learning_res)
+        for sel_var, post_learning_res in zip(data[:, 1], data[:, 0]):
+            organized_data[sel_var].append(float(post_learning_res))
 
-        # --- Free memory
-        self.selected_variables = None
-        self.post_learning_test = None
+        return organized_data
 
-    def prepare_backup(self):
+    def prepare_backup(self, data):
 
-        idx = 0
-        for key, value in tqdm(self.formatted_data.items()):
+        for key in data.keys():
 
             try:
-                mean = np.mean(self.formatted_data[key])
+                mean = np.mean(data[key])
             except Exception:
-                print(self.formatted_data[key])
+                print(data[key])
                 raise Exception
             sem = mean / np.sqrt(self.n_network)
-            self.backup.append([idx, key, mean, sem])
-            idx += 1
-
-        # --- Free memory
-        self.formatted_data = None
+            self.backup.append([self.idx, key, mean, sem])
+            self.idx += 1
 
     def do_backup(self):
 
@@ -187,8 +153,8 @@ def main():
     n_network = 50
 
     temporary_files_folder = path.expanduser("~/Desktop")
-    database_folder = "{}/db/".format(temporary_files_folder)
-    input_db = "combinations_091917"
+    database_folder = "{}/results/".format(temporary_files_folder)
+    input_db = "combinations_nolb_111317"
     output_db = "analysis_{}".format(input_db)
 
     s = Statistician(
