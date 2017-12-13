@@ -16,7 +16,7 @@ plt.yticks([])
 plt.savefig('../../var_combination/results/rrho_plot.pdf')
 plt.show()
 
-# Selection of the diagonal as a bin to bin comparison  
+# Selection of the diagonal as a bin to bin comparison
 diag = np.diag(rrho)
 
 # Smoothening of the curve
