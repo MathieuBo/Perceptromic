@@ -21,13 +21,16 @@ class Statistician(object):
         ordered_mean = np.argsort(mean_perf)
 
         ordered_var = list()
+        ordered_perf = list()
 
         for i in ordered_mean:
             ordered_var.append(var_names[i])
+            ordered_perf.append(mean_perf[i])
 
         select_comb = ordered_var[:int(len(ordered_mean)*threshold)]
+        select_comb_perf = ordered_perf[:int(len(ordered_mean)*threshold)]
 
-        return select_comb
+        return select_comb, select_comb_perf
 
     @staticmethod
     def import_names(filename, random):
@@ -79,12 +82,12 @@ class DataClassifier(Statistician):
 
     def find_best_var(self, threshold, group_name):
 
-        selected_comb = self.analyse_combinations(threshold=threshold)
+        selected_comb, selected_comb_perf = self.analyse_combinations(threshold=threshold)
 
         # Save the list of combinations as txt file
         with open('../../var_combination/selected_comb_{}.txt'.format(group_name), 'w') as file:
-            for i in selected_comb:
-                file.write('{}\n'.format(i))
+            for i, j in zip(selected_comb, selected_comb_perf):
+                file.write('{i}\t{j}\n'.format(i=i, j=j))
 
         best_var = []
         for i in selected_comb:
@@ -228,12 +231,12 @@ if __name__ == "__main__":
     explanans = 163
 
     # Analysis for lb group
-    # group_name = 'lb'
-    # database = 'analysis_combinations_101617'
+    group_name = 'lb'
+    database = 'analysis_combinations_101617'
 
     # Analysis for nolb group
-    group_name = 'nolb'
-    database = 'analysis_combinations_nolb_111317'
+    # group_name = 'nolb'
+    # database = 'analysis_combinations_nolb_111317'
 
     # Frequency analysis
     analyst = Analyst(db_name=database, threshold=.01, total_var=total_number_var, explanans=explanans, group_name=group_name)
