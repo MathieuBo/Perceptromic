@@ -77,9 +77,14 @@ class DataClassifier(Statistician):
 
         return color
 
-    def find_best_var(self, threshold):
+    def find_best_var(self, threshold, group_name):
 
         selected_comb = self.analyse_combinations(threshold=threshold)
+
+        # Save the list of combinations as txt file
+        with open('../../var_combination/selected_comb_{}.txt'.format(group_name), 'w') as file:
+            for i in selected_comb:
+                file.write('{}\n'.format(i))
 
         best_var = []
         for i in selected_comb:
@@ -91,7 +96,7 @@ class DataClassifier(Statistician):
 
     def graph_freq(self, threshold):
 
-        best_var = self.find_best_var(threshold=threshold)
+        best_var = self.find_best_var(threshold=threshold, group_name=group_name)
 
         selected_var = np.unique(best_var)
         print('Number of absent variable in the top 1% : {}'.format(len(np.setdiff1d(self.total_list, selected_var))))
