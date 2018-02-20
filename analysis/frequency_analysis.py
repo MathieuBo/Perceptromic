@@ -239,8 +239,12 @@ if __name__ == "__main__":
     explanans = 163
 
     # Analysis for lb group
-    # group_name = 'lb'
-    # database = 'analysis_combinations_101617'
+    group_name = 'lb'
+    database = 'analysis_combinations_101617'
+
+    # Frequency analysis
+    analyst = Analyst(db_name=database, threshold=.01, total_var=total_number_var, explanans=explanans, group_name=group_name)
+    analyst.run_analysis()
 
     # Analysis for nolb group
     group_name = 'nolb'
