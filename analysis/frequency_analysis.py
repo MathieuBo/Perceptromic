@@ -152,7 +152,8 @@ class DataClassifier(Statistician):
         plt.xlim((-.5, len(ordered_means)+.5))
         plt.ylabel('Counts in the top 1%')
         plt.title('Ordered abundance in top 1% +/- 99% CI')
-        plt.savefig('../../var_combination/results/full_plot_{}'.format(self.group))
+        plt.savefig('../../var_combination/results/full_plot_{}.png'.format(self.group))
+        plt.savefig('../../var_combination/results/full_plot_{}.svg'.format(self.group))
         plt.show()
 
         # Plot without random variables
@@ -169,6 +170,11 @@ class DataClassifier(Statistician):
                 ci_wo_rand.append(c)
                 colors_wo_rand.append(col)
 
+        # Save the first 20 variables and associated couns in a txt file
+        with open("../../var_combination/nodes_{}.txt".format(self.group), 'w') as file:
+            for i, j in zip(names_wo_rand[:20], means_wo_rand[:20]):
+                file.write('{}\t{}\n'.format(i, j))
+
         fig, ax = plt.subplots(figsize=(20, 5))
 
         ax.spines['top'].set_visible(False)
@@ -180,7 +186,8 @@ class DataClassifier(Statistician):
         plt.ylabel('Counts in the top 1%')
         plt.title('Ordered abundance in top 1% +/- 99% CI')
         plt.tight_layout()
-        plt.savefig('../../var_combination/results/plot_{}'.format(self.group))
+        plt.savefig('../../var_combination/results/plot_{}.png'.format(self.group))
+        plt.savefig('../../var_combination/results/plot_{}.svg'.format(self.group))
         plt.show()
 
         # Save ordered list of var for RRHO test
@@ -201,7 +208,8 @@ class DataClassifier(Statistician):
         plt.ylabel('Counts in the top 1%')
         plt.title('Ordered abundance in top 1% +/- 99% CI')
         plt.tight_layout()
-        plt.savefig('../../var_combination/results/plot_{}_top20'.format(self.group))
+        plt.savefig('../../var_combination/results/plot_{}_top20.png'.format(self.group))
+        plt.savefig('../../var_combination/results/plot_{}_top20.svg'.format(self.group))
         plt.show()
 
 
@@ -231,12 +239,12 @@ if __name__ == "__main__":
     explanans = 163
 
     # Analysis for lb group
-    group_name = 'lb'
-    database = 'analysis_combinations_101617'
+    # group_name = 'lb'
+    # database = 'analysis_combinations_101617'
 
     # Analysis for nolb group
-    # group_name = 'nolb'
-    # database = 'analysis_combinations_nolb_111317'
+    group_name = 'nolb'
+    database = 'analysis_combinations_nolb_111317'
 
     # Frequency analysis
     analyst = Analyst(db_name=database, threshold=.01, total_var=total_number_var, explanans=explanans, group_name=group_name)
