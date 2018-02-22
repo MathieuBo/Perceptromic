@@ -14,6 +14,7 @@ plt.title('Rank-Rank hypergeometric plot: LB vs noLB')
 plt.xticks([])
 plt.yticks([])
 plt.savefig('../../var_combination/results/rrho_plot.pdf')
+plt.savefig('../../var_combination/results/rrho_plot.svg')
 plt.show()
 
 # Selection of the diagonal as a bin to bin comparison
@@ -37,4 +38,5 @@ plt.xlim((0, len(diag)))
 plt.ylim((0, int(np.max(diag))+1))
 plt.tight_layout()
 plt.savefig('../../var_combination/results/rrho_diag.pdf')
+plt.savefig('../../var_combination/results/rrho_diag.svg')
 plt.show()
