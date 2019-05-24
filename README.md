@@ -1,10 +1,11 @@
 # Perceptromic analysis
---
+-
+
 Machine learning reveals pathological signatures inducedby patient-derived alpha-synuclein structures. 
 
 Bourdenx M., Nioche A. et al. *in revision*
 
---
+-
 
 **AIM**: This analysis allows ranking of variables using Multiple Layer Perceptrons (MLPs). 
 
@@ -18,7 +19,7 @@ A random matrix of the same size of the input matrix is used as a control of lea
 2. All combinations are then ranked regarding their performance in perdicting the 3 output variables. The top 1% is selected for further analysis.
 3. The top 1% selected from the previous step is break into single variable and variables are ranked by the frequency of appearance in the top 1% of best combinations of 3 input variables. 
 
--- 
+-
 
 **Step-by-step description**
 
