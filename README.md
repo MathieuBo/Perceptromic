@@ -26,7 +26,7 @@ A random matrix of the same size of the input matrix is used as a control of lea
 A matrix of *n* examples (as row) and *p* variables (columns) is used as input. 
 The variables used as output of the MLPs (the variables needed to be predicted should be the last 3 columns of the matrix. 
 
-![Example](https://github.com/MathieuBo/Perceptromic/blob/master/input_table.png){:height="75%" width="75%"}
+![Example](https://github.com/MathieuBo/Perceptromic/blob/master/input_table.png)
 
 ### Main script description
 
