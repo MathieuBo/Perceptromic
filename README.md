@@ -6,7 +6,7 @@ Machine learning reveals pathological signatures inducedby patient-derived alpha
 Bourdenx M., Nioche A. et al. *in revision*
 
 
-##AIM
+## AIM
 This analysis allows ranking of variables using Multiple Layer Perceptrons (MLPs). 
 
 We use MLPs with a constrained architecture (3 neurons per layer - 1 hidden layer). 
@@ -39,3 +39,15 @@ Using combinations.py (main folder):
 	* Compute the different combinations
 
 Data are obtained as SQLite databases.
+
+## Prerequisites
+
+Several packages are necessary:
+
+* Python >3
+* Cython (MLP have written in cython to increase computation speed)
+* Numpy
+* Scipy
+* Matplotlib
+* sqlite3
+* tqdm
