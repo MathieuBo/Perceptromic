@@ -24,8 +24,9 @@ A random matrix of the same size of the input matrix is used as a control of lea
 ### Data preparation
 
 A matrix of *n* examples (as row) and *p* variables (columns) is used as input. 
+The variables used as output of the MLPs (the variables needed to be predicted should be the last 3 columns of the matrix. 
 
-All variables used as input should be columns [ 0 : *p*-3]. The variables used as output of the MLPs (the variables needed to be predicted should be the last 3 columns of the matrix. 
+![./input_table.png](Example)
 
 ### Main script description
 
