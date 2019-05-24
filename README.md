@@ -21,11 +21,13 @@ A random matrix of the same size of the input matrix is used as a control of lea
 2. All combinations are then ranked regarding their performance in perdicting the 3 output variables. The top 1% is selected for further analysis.
 3. The top 1% selected from the previous step is break into single variable and variables are ranked by the frequency of appearance in the top 1% of best combinations of 3 input variables. 
 
-### Script description
+### Data preparation
 
 A matrix of *n* examples (as row) and *p* variables (columns) is used as input. 
 
 All variables used as input should be columns [ 0 : *p*-3]. The variables used as output of the MLPs (the variables needed to be predicted should be the last 3 columns of the matrix. 
+
+### Main script description
 
 Using combinations.py (main folder): 
 
