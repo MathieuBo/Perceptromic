@@ -7,6 +7,7 @@ Bourdenx M., Nioche A. et al. *in revision*
 
 
 ## AIM
+
 This analysis allows ranking of variables using Multiple Layer Perceptrons (MLPs). 
 
 We use MLPs with a constrained architecture (3 neurons per layer - 1 hidden layer). 
