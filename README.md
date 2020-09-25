@@ -1,9 +1,9 @@
 # Perceptromic analysis
 
 ### Reference
-Machine learning reveals pathological signatures inducedby patient-derived alpha-synuclein structures. 
+Identification of distinct pathological signatures induced by patient-derived α-synuclein structures in nonhuman primates/
 
-Bourdenx M., Nioche A. et al. *in revision*
+Bourdenx M., Nioche A. et al. Science Advances Vol. 6, no. 20, eaaz9165 ![Link](https://advances.sciencemag.org/content/6/20/eaaz9165)
 
 
 ## AIM
