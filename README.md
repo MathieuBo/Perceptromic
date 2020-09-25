@@ -1,9 +1,9 @@
 # Perceptromic analysis
 
 ### Reference
-Identification of distinct pathological signatures induced by patient-derived α-synuclein structures in nonhuman primates/
+Identification of distinct pathological signatures induced by patient-derived α-synuclein structures in nonhuman primates
 
-Bourdenx M., Nioche A. et al. Science Advances Vol. 6, no. 20, eaaz9165 ![Link](https://advances.sciencemag.org/content/6/20/eaaz9165)
+Bourdenx M., Nioche A. et al. *Science Advances* 2020 Vol. 6, no. 20, eaaz9165 ![Link to the paper](https://advances.sciencemag.org/content/6/20/eaaz9165)
 
 
 ## AIM
